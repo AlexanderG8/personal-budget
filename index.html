@@ -1,16 +1,73 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PGestor de Presupuesto Personal</title>
+    <title>Document</title>
+    <link rel="stylesheet" href="style.css">
+
 </head>
+
 <body>
     <h1>Gestor de Presupuesto Personal</h1>
-    <p>Abra la consola (F12) para interactuar con el administrador de presupuestos.</p>
-    <button onclick="iniciarPrograma()">Registrar Movimiento</button>
-    <button onclick="eliminarMovimiento()">Eliminar Movimiento</button>
-    <button onclick="mostrarMaximos()">Mostrar Máximos</button>
+
+    <form id="gastoForm">
+        <div class="form-group">
+            <label for="nombre">Nombre del movimiento:</label>
+            <input type="text" id="nombre" placeholder="Ej: Compra en supermercado">
+            <div id="nombreError" class="error"></div>
+        </div>
+
+        <div class="form-group">
+            <label for="tipo">Tipo:</label>
+            <select id="tipo">
+                <option value="ingreso">Ingreso</option>
+                <option value="egreso">Egreso</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="monto">Monto:</label>
+            <input type="number" id="monto" step="0.01" placeholder="Ej: 100.50">
+            <div id="montoError" class="error"></div>
+        </div>
+
+        <button type="submit">Registrar Movimiento</button>
+        <div id="successMessage" class="success"></div>
+    </form>
+
+    <div class="actions">
+        <button id="listarNombresBtn">Listar Nombres</button>
+        <button id="filtrarEgresosBtn">Egresos > 100</button>
+    </div>
+
+    <div id="searchForm">
+        <input type="text" id="searchInput" placeholder="Buscar movimiento por nombre...">
+        <button id="searchBtn">Buscar</button>
+    </div>
+
+    <div id="resultadoBusqueda"></div>
+
+    <h2>Movimientos Registrados</h2>
+    <table id="movimientosTable">
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Tipo</th>
+                <th>Monto</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Los movimientos se mostrarán aquí -->
+        </tbody>
+    </table>
+
+    <h3>Total de Ingresos</h3>
+    <p id="ingresosTotal"></p>
+    <h3>Total de Egresos</h3>
+    <p id="egresosTotal"></p>
     <script src="app.js"></script>
 </body>
+
 </html>
