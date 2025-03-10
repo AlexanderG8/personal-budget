@@ -48,3 +48,43 @@ El programa utiliza las siguientes estructuras fundamentales:
 - Condicionales: Validan datos y controlan el flujo de la aplicación
 - Funciones Map/Filter: Procesan y filtran datos de movimientos
 - DOM Manipulation: Actualiza la interfaz de usuario dinámicamente
+
+## Comparación de Paradigmas: Imperativo vs Funcional
+
+En este proyecto, he implementado una combinación de programación imperativa y funcional:
+
+### Enfoque Imperativo
+- La manipulación directa del DOM para actualizar la tabla y mostrar mensajes
+- El uso de variables globales como `movimientos`, `totalIngresos` y `totalEgresos`
+- La modificación de estado mediante event listeners y el manejo de formularios
+
+### Enfoque Funcional
+- Implementación de funciones puras como `obtenerNombresMovimientos`, `filtrarEgresosMayores` y `buscarMovimientoPorNombre`
+- Uso de métodos funcionales como `map` y `filter` para procesar datos
+- Evitar efectos secundarios en funciones de búsqueda y filtrado
+
+La combinación de ambos paradigmas me permitió:
+- Mantener código más limpio y predecible en operaciones de datos (funcional)
+- Manejar efectivamente la interacción con el usuario (imperativo)
+- Balancear la necesidad de estado mutable con la claridad del código
+
+## Aplicación del Principio DRY (Don't Repeat Yourself)
+
+He aplicado el principio DRY de las siguientes maneras:
+
+1. Centralización de la actualización de datos:
+   - La función `actualizarTabla()` maneja toda la lógica de actualización visual
+   - Reutilización del mismo código para mostrar datos iniciales y actualizaciones
+
+2. Funciones reutilizables:
+   - `mostrarResultadoBusqueda()` se usa para diferentes tipos de mensajes
+   - Las funciones de filtrado y búsqueda son genéricas y reutilizables
+
+3. Validación de datos:
+   - Lógica de validación centralizada en el evento submit del formulario
+   - Manejo consistente de errores y mensajes de éxito
+
+En mi humilde opinión, este enfoque ha permitido:
+- Reducir la duplicación de código
+- Facilitar el mantenimiento
+- Mantener la consistencia en la funcionalidad
