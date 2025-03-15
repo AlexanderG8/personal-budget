@@ -88,3 +88,41 @@ En mi humilde opinión, este enfoque ha permitido:
 - Reducir la duplicación de código
 - Facilitar el mantenimiento
 - Mantener la consistencia en la funcionalidad
+
+## Backlog
+
+1. **HU4: Eliminar Movimientos**
+   - Como usuario, quiero poder eliminar movimientos individuales para corregir errores de registro.
+
+   Criterios de aceptación:
+   - Cada movimiento debe tener un botón de eliminar
+   - Al eliminar, debe pedir confirmación
+   - Los totales deben actualizarse automáticamente
+   - Debe mostrar mensaje de éxito al eliminar
+
+2. **HU5: Editar Movimientos**
+   - Como usuario, quiero poder modificar los datos de un movimiento existente para corregir información.
+
+   Criterios de aceptación:
+   - Debe permitir editar nombre y monto
+   - Debe mantener las validaciones existentes
+   - Debe actualizar la tabla automáticamente
+   - Debe mostrar mensaje de éxito al guardar
+
+3. **HU6: Ordenar Movimientos**
+   - Como usuario, quiero poder ordenar los movimientos por monto para visualizar mejor mis finanzas.
+
+   Criterios de aceptación:
+   - Debe poder ordenar de mayor a menor
+   - Debe poder ordenar de menor a mayor
+   - El orden debe mantenerse al agregar nuevos movimientos
+   - Debe mostrar un indicador del orden actual
+
+4. **HU7: Limpiar Registros**
+   - Como usuario, quiero poder eliminar todos los movimientos para empezar de nuevo.
+
+   Criterios de aceptación:
+   - Debe tener un botón de "Limpiar Todo"
+   - Debe pedir confirmación antes de eliminar
+   - Debe reiniciar los totales a cero
+   - Debe mostrar mensaje de confirmación

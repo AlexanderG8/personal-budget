@@ -1,18 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Gestor de Presupuesto Personal</title>
-        <script src="https://cdn.tailwindcss.com"></script>
-        <!-- <link rel="stylesheet" href="style.css"> -->
-    </head>
-
-    <body class="bg-gray-100 min-h-screen py-8">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestor de Presupuesto Personal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <header class="bg-white shadow-md py-6">
         <div class="container mx-auto px-4 max-w-4xl">
-            <h1 class="text-3xl font-bold text-center text-gray-800 mb-8">Gestor de Presupuesto Personal</h1>
+            <h1 class="text-3xl font-bold text-center text-gray-800">Gestor de Presupuesto Personal</h1>
+        </div>
+    </header>
 
-            <form id="gastoForm" class="bg-white rounded-lg shadow-md p-6 mb-8">
+    <main class="container mx-auto px-4 max-w-4xl py-8">
+        <!-- Sección de Registro -->
+        <section class="mb-8">
+            <form id="gastoForm" class="bg-white rounded-lg shadow-md p-6">
                 <div class="form-group mb-4">
                     <label for="nombre" class="block text-gray-700 text-sm font-bold mb-2">Nombre del movimiento:</label>
                     <input type="text" id="nombre"
@@ -41,61 +45,78 @@
                     class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-md transition duration-300">
                     Registrar Movimiento
                 </button>
-                <br>
-                <div id="successMessage" class="success"></div>
+                <div id="successMessage" class="text-green-600 text-sm mt-2 text-center"></div>
             </form>
+        </section>
 
-            <div class="actions flex justify-center gap-4 mb-6">
-                <button id="listarNombresBtn" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded transition">
+        <!-- Sección de Acciones -->
+        <section class="mb-8">
+            <div class="flex justify-center gap-4">
+                <button id="listarNombresBtn" class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-md transition">
                     Listar Nombres
                 </button>
-                <button id="filtrarEgresosBtn" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded transition">
+                <button id="filtrarEgresosBtn" class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-md transition">
                     Egresos > 100
+                </button>
+                <button id="limpiarTodo" class="bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded-md transition">
+                    Limpiar Todo
                 </button>
             </div>
 
-            <!-- Resultados -->
-            <div id="listaNombresResult" class="hidden mb-6 p-4 bg-white rounded-lg shadow"></div>
-            <div id="filtroEgresosResult" class="hidden mb-6 p-4 bg-white rounded-lg shadow"></div>
+            <div id="listaNombresResult" class="hidden mt-4 p-4 bg-white rounded-lg shadow"></div>
+            <div id="filtroEgresosResult" class="hidden mt-4 p-4 bg-white rounded-lg shadow"></div>
+        </section>
 
-            <div id="searchForm" class="flex gap-4 mb-6">
+        <!-- Sección de Búsqueda -->
+        <section class="mb-8">
+            <div class="flex gap-4">
                 <input type="text" id="searchInput"
-                class="flex-1 border rounded px-4 py-2"
-                placeholder="Buscar movimiento por nombre...">
-                <button id="searchBtn" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">
+                    class="flex-1 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Buscar movimiento por nombre...">
+                <button id="searchBtn" class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-md transition">
                     Buscar
                 </button>
             </div>
+            <div id="resultadoBusqueda" class="mt-4"></div>
+        </section>
 
-            <div id="resultadoBusqueda" class="mb-6"></div>
-
-            <div class="bg-white rounded-lg shadow-md p-6">
-                <h2 class="text-xl font-semibold mb-4">Movimientos Registrados</h2>
+        <!-- Sección de Movimientos -->
+        <section class="bg-white rounded-lg shadow-md p-6">
+            <h2 class="text-xl font-semibold mb-6">Movimientos Registrados</h2>
+            <div class="overflow-x-auto">
                 <table id="movimientosTable" class="w-full">
-                    <thead>
-                        <tr class="bg-gray-50">
-                            <th class="px-4 py-2 text-left">Nombre</th>
-                            <th class="px-4 py-2 text-left">Tipo</th>
-                            <th class="px-4 py-2 text-left">Monto</th>
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nombre</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tipo</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Monto</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody class="bg-white divide-y divide-gray-200">
                         <!-- Los movimientos se mostrarán aquí -->
                     </tbody>
                 </table>
+            </div>
 
-                <div class="mt-6 grid grid-cols-2 gap-4">
-                    <div>
-                        <h3 class="text-lg font-medium">Total de Ingresos</h3>
-                        <p id="ingresosTotal" class="text-green-600 text-xl font-bold"></p>
-                    </div>
-                    <div>
-                        <h3 class="text-lg font-medium">Total de Egresos</h3>
-                        <p id="egresosTotal" class="text-red-600 text-xl font-bold"></p>
-                    </div>
+            <div class="mt-6 grid grid-cols-2 gap-6">
+                <div class="p-4 bg-green-50 rounded-lg">
+                    <h3 class="text-lg font-medium text-green-800">Total de Ingresos</h3>
+                    <p id="ingresosTotal" class="text-2xl font-bold text-green-600"></p>
+                </div>
+                <div class="p-4 bg-red-50 rounded-lg">
+                    <h3 class="text-lg font-medium text-red-800">Total de Egresos</h3>
+                    <p id="egresosTotal" class="text-2xl font-bold text-red-600"></p>
                 </div>
             </div>
+        </section>
+    </main>
+
+    <footer class="bg-gray-800 text-white py-6 mt-8">
+        <div class="container mx-auto px-4 max-w-4xl text-center">
+            <p>&copy; 2024 Gestor de Presupuesto Personal</p>
         </div>
-        <script src="app.js"></script>
-    </body>
+    </footer>
+
+    <script src="app.js"></script>
+</body>
 </html>

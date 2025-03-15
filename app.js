@@ -1,40 +1,194 @@
-// Constructor Movimiento
-function Movimiento(nombre, tipo, monto) {
-    // Validamos
-    if (!nombre || nombre.trim() === '') {
-        throw new Error('El nombre no puede estar vacío');
-    }
-    if (tipo !== 'ingreso' && tipo !== 'egreso') {
-        throw new Error('Tipo de movimiento inválido');
-    }
-    if (isNaN(monto) || monto <= 0) {
-        throw new Error('El monto debe ser un número mayor a cero');
-    }
+let movimientos = [];
 
-    this.nombre = nombre.trim();
-    this.tipo = tipo;
+// Constructor base Movimiento
+function Movimiento(nombre, monto) {
+    this.nombre = nombre;
     this.monto = parseFloat(monto);
     this.fecha = new Date();
 }
 
-// Método formatMonto (Prototype) de la función constructora Movimiento
+// Métodos compartidos en el prototipo de Movimiento
+Movimiento.prototype.validar = function() {
+    if (!this.nombre || this.nombre.trim() === '') {
+        throw new Error('El nombre no puede estar vacío');
+    }
+    if (isNaN(this.monto) || this.monto <= 0) {
+        throw new Error('El monto debe ser un número mayor a cero');
+    }
+};
+
 Movimiento.prototype.formatMonto = function() {
-    return this.monto.toFixed(2) // Formatear el número con 2 decimales;
+    return this.monto.toFixed(2);
 };
 
 Movimiento.prototype.render = function() {
     const row = document.createElement('tr');
     row.innerHTML = `
-        <td>${this.nombre}</td>
-        <td class="${this.tipo}">${this.tipo === 'ingreso' ? 'Ingreso' : 'Egreso'}</td>
-        <td class="${this.tipo}">${this.formatMonto()}</td>
+        <td class="px-6 py-4 whitespace-nowrap">${this.nombre}</td>
+        <td class="px-6 py-4 whitespace-nowrap">${this.getTipo()}</td>
+        <td class="px-6 py-4 whitespace-nowrap font-medium ${this.getColorClase()}">${this.formatMonto()}</td>
+        <td class="px-6 py-4 whitespace-nowrap">
+            <button class="text-blue-600 hover:text-blue-900 edit-btn mr-2">
+                <i class="fas fa-edit"></i> Editar
+            </button>
+            <button class="text-red-600 hover:text-red-900 delete-btn">
+                <i class="fas fa-trash"></i> Eliminar
+            </button>
+        </td>
     `;
+
+    const editBtn = row.querySelector('.edit-btn');
+    editBtn.addEventListener('click', () => this.editar());
+
+    const deleteBtn = row.querySelector('.delete-btn');
+    deleteBtn.addEventListener('click', () => this.eliminar());
+
     return row;
 };
 
-let movimientos = [];
+Movimiento.prototype.editar = function() {
+    const nombre = document.getElementById('nombre');
+    const monto = document.getElementById('monto');
+    const tipo = document.getElementById('tipo');
 
-// Evento del formulario
+    nombre.value = this.nombre;
+    monto.value = this.monto;
+    tipo.value = this instanceof Ingreso ? 'ingreso' : 'egreso';
+
+    // Eliminar el movimiento actual
+    const index = movimientos.indexOf(this);
+    if (index > -1) {
+        movimientos.splice(index, 1);
+    }
+
+    // Hacer scroll al formulario
+    document.getElementById('gastoForm').scrollIntoView({ behavior: 'smooth' });
+};
+
+// Método para eliminar movimiento
+Movimiento.prototype.eliminar = function() {
+    if (confirm('¿Está seguro de eliminar este movimiento?')) {
+        const index = movimientos.indexOf(this);
+        if (index > -1) {
+            movimientos.splice(index, 1);
+            actualizarTabla();
+
+            const successMessage = document.getElementById('successMessage');
+            successMessage.textContent = 'Movimiento eliminado con éxito';
+            successMessage.className = 'text-green-600 text-sm mt-2 text-center';
+
+            setTimeout(() => {
+                successMessage.textContent = '';
+            }, 3000);
+        }
+    }
+};
+
+// Constructor Ingreso
+function Ingreso(nombre, monto) {
+    Movimiento.call(this, nombre, monto);
+}
+
+// Heredar de Movimiento
+Ingreso.prototype = Object.create(Movimiento.prototype);
+Ingreso.prototype.constructor = Ingreso;
+
+// Métodos específicos de Ingreso
+Ingreso.prototype.getTipo = function() {
+    return 'Ingreso';
+};
+
+Ingreso.prototype.getColorClase = function() {
+    return 'text-green-600';
+};
+
+// Constructor Egreso
+function Egreso(nombre, monto) {
+    Movimiento.call(this, nombre, monto);
+}
+
+// Heredar de Movimiento
+Egreso.prototype = Object.create(Movimiento.prototype);
+Egreso.prototype.constructor = Egreso;
+
+// Métodos específicos de Egreso
+Egreso.prototype.getTipo = function() {
+    return 'Egreso';
+};
+
+Egreso.prototype.getColorClase = function() {
+    return 'text-red-600';
+};
+
+// Agregar método de cálculo de totales al prototipo de Movimiento
+Movimiento.prototype.actualizarTotales = function(totales) {
+    debugger
+    if (this instanceof Ingreso) {
+        totales.ingresos += this.monto;
+    } else if (this instanceof Egreso) {
+        totales.egresos += this.monto;
+    }
+};
+
+// Actualizar la función actualizarTabla
+function actualizarTabla() {
+    const tbody = document.querySelector('#movimientosTable tbody');
+    tbody.innerHTML = '';
+
+    if (movimientos.length === 0) {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td colspan="3" class="px-6 py-4 text-center text-gray-500">
+                No hay movimientos registrados.
+            </td>`;
+        tbody.appendChild(row);
+        return;
+    }
+
+    let totalIngresos = 0;
+    let totalEgresos = 0;
+
+    movimientos.forEach(movimiento => {
+        tbody.appendChild(movimiento.render());
+
+        // Calcular totales basado en la instancia del movimiento
+        if (movimiento instanceof Ingreso) {
+            totalIngresos += parseFloat(movimiento.monto);
+        } else if (movimiento instanceof Egreso) {
+            totalEgresos += parseFloat(movimiento.monto);
+        }
+    });
+
+    // Actualiza totales
+    document.getElementById("ingresosTotal").innerText = totalIngresos.toFixed(2);
+    document.getElementById("egresosTotal").innerText = totalEgresos.toFixed(2);
+    // animarContador(document.getElementById("ingresosTotal"), totalIngresos);
+    // animarContador(document.getElementById("egresosTotal"), totalEgresos);
+}
+
+// Función para animar los contadores
+// function animarContador(elemento, valorFinal) {
+//     const duracion = 500; // duración en milisegundos
+//     const inicio = parseFloat(elemento.innerText) || 0;
+//     const diferencia = valorFinal - inicio;
+//     const incremento = diferencia / (duracion / 16); // 60fps
+//     let valorActual = inicio;
+
+//     const animar = () => {
+//         valorActual += incremento;
+//         if ((incremento > 0 && valorActual >= valorFinal) ||
+//             (incremento < 0 && valorActual <= valorFinal)) {
+//             elemento.innerText = valorFinal.toFixed(2);
+//             return;
+//         }
+//         elemento.innerText = valorActual.toFixed(2);
+//         requestAnimationFrame(animar);
+//     };
+
+//     requestAnimationFrame(animar);
+// }
+
+// Evento submit
 gastoForm.addEventListener('submit', function(event) {
     event.preventDefault();
 
@@ -47,11 +201,23 @@ gastoForm.addEventListener('submit', function(event) {
     document.getElementById('successMessage').textContent = '';
 
     try {
-        const movimiento = new Movimiento(nombre, tipo, monto);
+        const movimiento = tipo === 'ingreso'
+            ? new Ingreso(nombre, monto)
+            : new Egreso(nombre, monto);
+
+        movimiento.validar();
         movimientos.push(movimiento);
-        document.getElementById('successMessage').textContent = 'Movimiento registrado con éxito.';
-        gastoForm.reset(); // Con esto limpio la tabla
-        actualizarTabla(); // Luego actualizo la tabla
+
+        const successMessage = document.getElementById('successMessage');
+        successMessage.textContent = 'Movimiento registrado con éxito';
+        successMessage.className = 'text-green-600 text-sm mt-2 text-center';
+
+        gastoForm.reset();
+        actualizarTabla();
+
+        setTimeout(() => {
+            successMessage.textContent = '';
+        }, 3000);
     } catch (error) {
         if (error.message.includes('nombre')) {
             document.getElementById('nombreError').textContent = error.message;
@@ -61,46 +227,16 @@ gastoForm.addEventListener('submit', function(event) {
     }
 });
 
-// ActualizarTabla
-function actualizarTabla() {
-    const tbody = document.querySelector('#movimientosTable tbody');
-    tbody.innerHTML = '';
-
-    if (movimientos.length === 0) {
-        const row = document.createElement('tr');
-        row.innerHTML = '<td colspan="3" style="text-align: center;">No hay movimientos registrados.</td>';
-        tbody.appendChild(row);
-        return;
-    }
-
-    let totalIngresos = 0;
-    let totalEgresos = 0;
-
-    movimientos.forEach(movimiento => {
-        tbody.appendChild(movimiento.render());
-
-        if (movimiento.tipo === 'ingreso') {
-            totalIngresos += movimiento.monto;
-        } else {
-            totalEgresos += movimiento.monto;
-        }
-    });
-
-    document.getElementById("ingresosTotal").innerText = totalIngresos.toFixed(2);
-    document.getElementById("egresosTotal").innerText = totalEgresos.toFixed(2);
-}
-
 // Función CargarDatosEjemplo
 function cargarDatosEjemplo() {
     movimientos = [
-        new Movimiento("Salario quincenal", "ingreso", 1500),
-        new Movimiento("Compra supermercado", "egreso", 120.50),
-        new Movimiento("Pago renta", "egreso", 450),
-        new Movimiento("Comisión trabajo freelance", "ingreso", 350),
-        new Movimiento("Cena restaurante", "egreso", 85.75)
+        new Ingreso("Salario quincenal", 1500),
+        new Egreso("Compra supermercado", 120.50),
+        new Egreso("Pago renta", 450),
+        new Ingreso("Comisión trabajo freelance", 350),
+        new Egreso("Cena restaurante", 85.75)
     ];
     actualizarTabla();
-    console.log("Datos de ejemplo cargados:", movimientos);
 }
 
 // Método toCard (Prototype) de la función constructora Movimiento
@@ -143,7 +279,7 @@ document.getElementById('listarNombresBtn').addEventListener('click', function()
 document.getElementById('filtrarEgresosBtn').addEventListener('click', function() {
     const filtroEgresosResult = document.getElementById('filtroEgresosResult');
     const egresosFiltrados = movimientos.filter(mov =>
-        mov.tipo === 'egreso' && mov.monto > 100
+        mov.getTipo() === 'Egreso' && mov.monto > 100
     );
 
     if (egresosFiltrados.length === 0) {
@@ -201,4 +337,65 @@ document.getElementById('searchBtn').addEventListener('click', function() {
     }
 
     resultadoBusqueda.style.display = 'block';
+});
+
+// Función para ordenar movimientos
+function ordenarMovimientos(orden = 'desc') {
+    movimientos.sort((a, b) => {
+        return orden === 'desc' ? b.monto - a.monto : a.monto - b.monto;
+    });
+    actualizarTabla();
+}
+
+// Botones de ordenamiento en el encabezado de la tabla
+document.querySelector('#movimientosTable thead tr').innerHTML += `
+    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+        Ordenar por monto
+        <button id="ordenAsc" class="ml-2 text-blue-600 hover:text-blue-900">
+            <i class="fas fa-sort-up"></i>
+        </button>
+        <button id="ordenDesc" class="ml-2 text-blue-600 hover:text-blue-900">
+            <i class="fas fa-sort-down"></i>
+        </button>
+    </th>
+`;
+
+document.getElementById('ordenAsc').addEventListener('click', () => ordenarMovimientos('asc'));
+document.getElementById('ordenDesc').addEventListener('click', () => ordenarMovimientos('desc'));
+
+// Botón de limpiar todo
+document.getElementById('limpiarTodo').addEventListener('click', function() {
+    if (confirm('¿Está seguro de eliminar todos los movimientos? Esta acción no se puede deshacer.')) {
+        // Limpiar array de movimientos
+        movimientos = [];
+
+        // Limpia tabla y totales
+        actualizarTabla();
+
+        // Limpia lista de nombres
+        document.getElementById('listaNombresResult').innerHTML = '';
+        document.getElementById('listaNombresResult').classList.add('hidden');
+
+        // Limpia egresos filtrados
+        document.getElementById('filtroEgresosResult').innerHTML = '';
+        document.getElementById('filtroEgresosResult').classList.add('hidden');
+
+        // Limpia búsqueda
+        document.getElementById('searchInput').value = '';
+        document.getElementById('resultadoBusqueda').innerHTML = '';
+        document.getElementById('resultadoBusqueda').style.display = 'none';
+
+        //Limpia Totales
+        document.getElementById("ingresosTotal").innerText = "";
+        document.getElementById("egresosTotal").innerText = "";
+
+        // Muestra mensaje de éxito
+        const successMessage = document.getElementById('successMessage');
+        successMessage.textContent = 'Todos los movimientos han sido eliminados';
+        successMessage.className = 'text-green-600 text-sm mt-2 text-center';
+
+        setTimeout(() => {
+            successMessage.textContent = '';
+        }, 3000);
+    }
 });
