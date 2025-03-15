@@ -444,6 +444,7 @@ document.addEventListener('DOMContentLoaded', function() {
 // HU2: Grafica de Balance General
 // Función para actualizar el gráfico
 function actualizarGrafico(ingresos, egresos) {
+    //.getContext('2d') -> Contexto renderizado 2d
     const ctx = document.getElementById('balanceChart').getContext('2d');
 
     // Si existe un grafico

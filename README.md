@@ -136,17 +136,31 @@ Debes implementará al menos 2 nuevas Historias de Usuario.
    - Como usuario, quiero que mis movimientos financieros se guarden en el navegador para no perder mi información al cerrar la página.
 
    Criterios de Aceptación:
-   - Los movimientos deben guardarse automáticamente en localStorage
-   - Al cargar la página, debe recuperar los movimientos guardados
-   - Los totales deben calcularse correctamente con los datos recuperados
-   - La persistencia debe funcionar para todas las operaciones (crear, editar, eliminar)
+   - Los movimientos deben guardarse automáticamente en localStorage.
+   - Al cargar la página, debe recuperar los movimientos guardados.
+   - Los totales deben calcularse correctamente con los datos recuperados.
+   - La persistencia debe funcionar para todas las operaciones (crear, editar, eliminar).
 
 2. **HU9: Balance Total con Gráfico**
    - Como usuario, quiero ver un gráfico que muestre la proporción entre ingresos y egresos para entender mejor mi situación financiera.
 
    Criterios de Aceptación:
-   - Debe mostrar un gráfico circular (pie chart) con Chart.js
-   - El gráfico debe actualizarse automáticamente con cada movimiento
-   - Debe mostrar porcentajes de ingresos vs egresos
-   - Debe usar colores consistentes con la UI actual (verde para ingresos, rojo para egresos)
+   - Debe mostrar un gráfico circular (pie chart) con Chart.js.
+   - El gráfico debe actualizarse automáticamente con cada movimiento.
+   - Debe mostrar porcentajes de ingresos vs egresos.
+   - Debe usar colores consistentes con la UI actual (verde para ingresos, rojo para egresos).
    - Debe mostrar el balance total (ingresos - egresos) debajo del gráfico.
+
+### Decisiones Técnicas Claves
+
+1. Persistencia de Datos con localStorage
+
+   - Se eligió localStorage sobre sessionStorage porque permite que los datos persistan incluso después de cerrar el navegador.
+   - La serialización JSON se usa para almacenar objetos complejos, manteniendo la integridad de los datos.
+   - Se implementó la carga automática al inicio para mejor experiencia de usuario.
+
+2. Visualización de Datos con Chart.js
+
+   - Se seleccionó Chart.js por su ligereza y facilidad de implementación.
+   - Se optó por un gráfico circular (pie chart) para mostrar la proporción ingresos/egresos de forma intuitiva.
+   - La actualización dinámica del gráfico está vinculada a la función actualizarTabla para mantener la consistencia de datos.
