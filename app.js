@@ -1,190 +1,204 @@
-// Mi array
-let movimientos = [];
-        
-// Formularios
-const gastoForm = document.getElementById('gastoForm');
-const resultadoBusqueda = document.getElementById('resultadoBusqueda');
+// Constructor Movimiento
+function Movimiento(nombre, tipo, monto) {
+    // Validamos
+    if (!nombre || nombre.trim() === '') {
+        throw new Error('El nombre no puede estar vacío');
+    }
+    if (tipo !== 'ingreso' && tipo !== 'egreso') {
+        throw new Error('Tipo de movimiento inválido');
+    }
+    if (isNaN(monto) || monto <= 0) {
+        throw new Error('El monto debe ser un número mayor a cero');
+    }
 
-// HU1 - Lista de nombres de movimientos
-document.getElementById('listarNombresBtn').addEventListener('click', function() {
-    // Mi función para listar los nombres de movimientos
-    function obtenerNombresMovimientos(movs) {
-        return movs.map(movimiento => movimiento.nombre);
-    }
-    
-    const nombresMovimientos = obtenerNombresMovimientos(movimientos);
-    
-    if (nombresMovimientos.length === 0) {
-        console.log("No hay movimientos registrados.");
-    } else {
-        console.log("Nombres de movimientos:", nombresMovimientos);
-    }
-});
-
-// HU2 - Filtro de egresos mayores a 100
-document.getElementById('filtrarEgresosBtn').addEventListener('click', function() {
-    // Mi función pura para filtrar egresos mayores a 100
-    function filtrarEgresosMayores(movs, limite) {
-        return movs.filter(movimiento => 
-            movimiento.tipo === 'egreso' && movimiento.monto > limite
-        );
-    }
-    
-    const egresosMayores = filtrarEgresosMayores(movimientos, 100);
-    
-    if (egresosMayores.length === 0) {
-        console.log("No se encontraron egresos mayores a 100.");
-    } else {
-        console.log("Egresos mayores a 100:", egresosMayores);
-    }
-});
-
-// HU3 - Busqueda de movimiento por nombre 
-document.getElementById('searchBtn').addEventListener('click', function() {
-    const nombreBuscado = document.getElementById('searchInput').value.trim().toLowerCase();
-    
-    if (nombreBuscado === '') {
-        mostrarResultadoBusqueda("Por favor, ingrese un nombre para buscar.", false);
-        return;
-    }
-    
-    // Mi Función para buscar un movimiento por nombre
-    function buscarMovimientoPorNombre(movs, nombre) {
-        return movs.find(
-            movimiento => movimiento.nombre.toLowerCase().includes(nombre)
-        );
-    }
-    
-    const movimientoEncontrado = buscarMovimientoPorNombre(movimientos, nombreBuscado);
-    
-    if (movimientoEncontrado) {
-        mostrarResultadoBusqueda(`Movimiento encontrado: ${movimientoEncontrado.nombre} - ${movimientoEncontrado.tipo} - ${movimientoEncontrado.monto.toFixed(2)}`, true);
-    } else {
-        mostrarResultadoBusqueda(`No se encontró ningún movimiento con el nombre "${nombreBuscado}".`, false);
-    }
-});
-
-// Función para mostrar el resultado de la búsqueda
-function mostrarResultadoBusqueda(mensaje, encontrado) {
-    resultadoBusqueda.textContent = mensaje;
-    resultadoBusqueda.style.display = 'block';
-    
-    if (encontrado) {
-        resultadoBusqueda.className = 'resultado-encontrado';
-    } else {
-        resultadoBusqueda.className = 'resultado-no-encontrado';
-    }
+    this.nombre = nombre.trim();
+    this.tipo = tipo;
+    this.monto = parseFloat(monto);
+    this.fecha = new Date();
 }
 
-// Evento submit -> Esto actuará cuando de clic al boton Registrar Movimiento
+// Método formatMonto (Prototype) de la función constructora Movimiento
+Movimiento.prototype.formatMonto = function() {
+    return this.monto.toFixed(2) // Formatear el número con 2 decimales;
+};
+
+Movimiento.prototype.render = function() {
+    const row = document.createElement('tr');
+    row.innerHTML = `
+        <td>${this.nombre}</td>
+        <td class="${this.tipo}">${this.tipo === 'ingreso' ? 'Ingreso' : 'Egreso'}</td>
+        <td class="${this.tipo}">${this.formatMonto()}</td>
+    `;
+    return row;
+};
+
+let movimientos = [];
+
+// Evento del formulario
 gastoForm.addEventListener('submit', function(event) {
     event.preventDefault();
-    
-    const nombre = document.getElementById('nombre').value.trim();
+
+    const nombre = document.getElementById('nombre').value;
     const tipo = document.getElementById('tipo').value;
-    const monto = parseFloat(document.getElementById('monto').value);
-    
+    const monto = document.getElementById('monto').value;
+
     document.getElementById('nombreError').textContent = '';
     document.getElementById('montoError').textContent = '';
     document.getElementById('successMessage').textContent = '';
-    
-    if (nombre === '') {
-        document.getElementById('nombreError').textContent = 'El nombre no puede estar vacío.';
-        return;
+
+    try {
+        const movimiento = new Movimiento(nombre, tipo, monto);
+        movimientos.push(movimiento);
+        document.getElementById('successMessage').textContent = 'Movimiento registrado con éxito.';
+        gastoForm.reset(); // Con esto limpio la tabla
+        actualizarTabla(); // Luego actualizo la tabla
+    } catch (error) {
+        if (error.message.includes('nombre')) {
+            document.getElementById('nombreError').textContent = error.message;
+        } else if (error.message.includes('monto')) {
+            document.getElementById('montoError').textContent = error.message;
+        }
     }
-    
-    if (isNaN(monto) || monto <= 0) {
-        document.getElementById('montoError').textContent = 'El monto debe ser un número mayor a cero.';
-        return;
-    }
-    
-    const movimiento = {
-        nombre: nombre,
-        tipo: tipo,
-        monto: monto,
-        fecha: new Date()
-    };
-    
-    movimientos.push(movimiento);
-    document.getElementById('successMessage').textContent = 'Movimiento registrado con éxito.';
-    gastoForm.reset();
-    actualizarTabla();
 });
 
-let totalIngresos = 0;
-let totalEgresos = 0
-
-// Actualizar mi tabla
+// ActualizarTabla
 function actualizarTabla() {
     const tbody = document.querySelector('#movimientosTable tbody');
     tbody.innerHTML = '';
-    
-    // Verificar si hay movimientos
+
     if (movimientos.length === 0) {
         const row = document.createElement('tr');
         row.innerHTML = '<td colspan="3" style="text-align: center;">No hay movimientos registrados.</td>';
         tbody.appendChild(row);
         return;
     }
-    
-    // Reseteo los totales
-    totalIngresos = 0;
-    totalEgresos = 0;
-    
-    // Map para crear las filas de la tabla
-    movimientos.map(movimiento => {
-        const row = document.createElement('tr');
-        
-        // Crear celda para el nombre
-        const nombreCell = document.createElement('td');
-        nombreCell.textContent = movimiento.nombre;
-        row.appendChild(nombreCell);
-        
-        // Crear celda para el tipo
-        const tipoCell = document.createElement('td');
-        tipoCell.textContent = movimiento.tipo === 'ingreso' ? 'Ingreso' : 'Egreso';
-        tipoCell.className = movimiento.tipo;
-        row.appendChild(tipoCell);
-        
-        // Crear celda para el monto
-        const montoCell = document.createElement('td');
-        montoCell.textContent = `${movimiento.monto.toFixed(2)}`;
-        montoCell.className = movimiento.tipo;
-        row.appendChild(montoCell);
-        
-        //Suma de totales Ingresos y Egresos
-        
-        if(movimiento.tipo == "ingreso"){
+
+    let totalIngresos = 0;
+    let totalEgresos = 0;
+
+    movimientos.forEach(movimiento => {
+        tbody.appendChild(movimiento.render());
+
+        if (movimiento.tipo === 'ingreso') {
             totalIngresos += movimiento.monto;
-        }
-        if(movimiento.tipo == "egreso"){
+        } else {
             totalEgresos += movimiento.monto;
         }
-
-        // Agregar la fila a la tabla
-        tbody.appendChild(row);
     });
 
-    document.getElementById("ingresosTotal").innerText = `${totalIngresos.toFixed(2)}`;
-    document.getElementById("egresosTotal").innerText = `${totalEgresos.toFixed(2)}`;
-
+    document.getElementById("ingresosTotal").innerText = totalIngresos.toFixed(2);
+    document.getElementById("egresosTotal").innerText = totalEgresos.toFixed(2);
 }
 
-// Inicializar la tabla
-actualizarTabla();
-
-// Datos de ejemplo para pruebas
+// Función CargarDatosEjemplo
 function cargarDatosEjemplo() {
     movimientos = [
-        { nombre: "Salario quincenal", tipo: "ingreso", monto: 1500, fecha: new Date() },
-        { nombre: "Compra supermercado", tipo: "egreso", monto: 120.50, fecha: new Date() },
-        { nombre: "Pago renta", tipo: "egreso", monto: 450, fecha: new Date() },
-        { nombre: "Comisión trabajo freelance", tipo: "ingreso", monto: 350, fecha: new Date() },
-        { nombre: "Cena restaurante", tipo: "egreso", monto: 85.75, fecha: new Date() }
+        new Movimiento("Salario quincenal", "ingreso", 1500),
+        new Movimiento("Compra supermercado", "egreso", 120.50),
+        new Movimiento("Pago renta", "egreso", 450),
+        new Movimiento("Comisión trabajo freelance", "ingreso", 350),
+        new Movimiento("Cena restaurante", "egreso", 85.75)
     ];
     actualizarTabla();
     console.log("Datos de ejemplo cargados:", movimientos);
 }
 
-// Cargar datos de ejemplo automáticamente
-cargarDatosEjemplo();
+// Método toCard (Prototype) de la función constructora Movimiento
+Movimiento.prototype.toCard = function() {
+    return `
+        <div class="bg-gray-50 p-3 rounded mb-2 flex justify-between items-center">
+            <span class="font-medium">${this.nombre}</span>
+            <span class="${this.tipo === 'ingreso' ? 'text-green-600' : 'text-red-600'} font-bold">
+                ${this.formatMonto()}
+            </span>
+        </div>
+    `;
+};
+
+// Evento del botón listarNombres
+document.getElementById('listarNombresBtn').addEventListener('click', function() {
+    const listaNombresResult = document.getElementById('listaNombresResult');
+
+    if (movimientos.length === 0) {
+        listaNombresResult.innerHTML = `
+            <div class="text-center text-gray-600">
+                No hay movimientos registrados.
+            </div>
+        `;
+    } else {
+        const nombresList = movimientos.map(mov =>
+            `<li class="py-2 border-b last:border-0">${mov.nombre}</li>`
+        ).join('');
+
+        listaNombresResult.innerHTML = `
+            <h3 class="text-lg font-semibold mb-3">Lista de Movimientos</h3>
+            <ul class="list-none">${nombresList}</ul>
+        `;
+    }
+
+    listaNombresResult.classList.remove('hidden');
+    document.getElementById('filtroEgresosResult').classList.add('hidden');
+});
+
+document.getElementById('filtrarEgresosBtn').addEventListener('click', function() {
+    const filtroEgresosResult = document.getElementById('filtroEgresosResult');
+    const egresosFiltrados = movimientos.filter(mov =>
+        mov.tipo === 'egreso' && mov.monto > 100
+    );
+
+    if (egresosFiltrados.length === 0) {
+        filtroEgresosResult.innerHTML = `
+            <div class="text-center text-gray-600">
+                No se encontraron egresos mayores a 100.
+            </div>
+        `;
+    } else {
+        filtroEgresosResult.innerHTML = `
+            <h3 class="text-lg font-semibold mb-3">Egresos mayores a 100</h3>
+            <div class="space-y-2">
+                ${egresosFiltrados.map(mov => mov.toCard()).join('')}
+            </div>
+        `;
+    }
+
+    filtroEgresosResult.classList.remove('hidden');
+    document.getElementById('listaNombresResult').classList.add('hidden');
+});
+
+// Función de buscar
+document.getElementById('searchBtn').addEventListener('click', function() {
+    const searchInput = document.getElementById('searchInput');
+    const resultadoBusqueda = document.getElementById('resultadoBusqueda');
+    const nombreBuscado = searchInput.value.trim().toLowerCase();
+
+    if (nombreBuscado === '') {
+        resultadoBusqueda.innerHTML = `
+            <div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4">
+                Por favor, ingrese un nombre para buscar.
+            </div>
+        `;
+        resultadoBusqueda.style.display = 'block';
+        return;
+    }
+
+    const movimientoEncontrado = movimientos.find(
+        movimiento => movimiento.nombre.toLowerCase().includes(nombreBuscado)
+    );
+
+    if (movimientoEncontrado) {
+        resultadoBusqueda.innerHTML = `
+            <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4">
+                <h4 class="font-bold">Movimiento encontrado:</h4>
+                ${movimientoEncontrado.toCard()}
+            </div>
+        `;
+    } else {
+        resultadoBusqueda.innerHTML = `
+            <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4">
+                No se encontró ningún movimiento con el nombre "${nombreBuscado}".
+            </div>
+        `;
+    }
+
+    resultadoBusqueda.style.display = 'block';
+});

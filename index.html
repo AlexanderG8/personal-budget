@@ -1,73 +1,101 @@
 <!DOCTYPE html>
 <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Gestor de Presupuesto Personal</title>
+        <script src="https://cdn.tailwindcss.com"></script>
+        <!-- <link rel="stylesheet" href="style.css"> -->
+    </head>
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestor de Presupuesto Personal</title>
-    <link rel="stylesheet" href="style.css">
+    <body class="bg-gray-100 min-h-screen py-8">
+        <div class="container mx-auto px-4 max-w-4xl">
+            <h1 class="text-3xl font-bold text-center text-gray-800 mb-8">Gestor de Presupuesto Personal</h1>
 
-</head>
+            <form id="gastoForm" class="bg-white rounded-lg shadow-md p-6 mb-8">
+                <div class="form-group mb-4">
+                    <label for="nombre" class="block text-gray-700 text-sm font-bold mb-2">Nombre del movimiento:</label>
+                    <input type="text" id="nombre"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        placeholder="Ej: Compra en supermercado">
+                    <div id="nombreError" class="text-red-500 text-sm mt-1"></div>
+                </div>
 
-<body>
-    <h1>Gestor de Presupuesto Personal</h1>
+                <div class="form-group mb-4">
+                    <label for="tipo" class="block text-gray-700 text-sm font-bold mb-2">Tipo:</label>
+                    <select id="tipo" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="ingreso">Ingreso</option>
+                        <option value="egreso">Egreso</option>
+                    </select>
+                </div>
 
-    <form id="gastoForm">
-        <div class="form-group">
-            <label for="nombre">Nombre del movimiento:</label>
-            <input type="text" id="nombre" placeholder="Ej: Compra en supermercado">
-            <div id="nombreError" class="error"></div>
+                <div class="form-group mb-4">
+                    <label for="monto" class="block text-gray-700 text-sm font-bold mb-2">Monto:</label>
+                    <input type="number" id="monto"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        step="0.01" placeholder="Ej: 100.50">
+                    <div id="montoError" class="text-red-500 text-sm mt-1"></div>
+                </div>
+
+                <button type="submit"
+                    class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-md transition duration-300">
+                    Registrar Movimiento
+                </button>
+                <br>
+                <div id="successMessage" class="success"></div>
+            </form>
+
+            <div class="actions flex justify-center gap-4 mb-6">
+                <button id="listarNombresBtn" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded transition">
+                    Listar Nombres
+                </button>
+                <button id="filtrarEgresosBtn" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded transition">
+                    Egresos > 100
+                </button>
+            </div>
+
+            <!-- Resultados -->
+            <div id="listaNombresResult" class="hidden mb-6 p-4 bg-white rounded-lg shadow"></div>
+            <div id="filtroEgresosResult" class="hidden mb-6 p-4 bg-white rounded-lg shadow"></div>
+
+            <div id="searchForm" class="flex gap-4 mb-6">
+                <input type="text" id="searchInput"
+                class="flex-1 border rounded px-4 py-2"
+                placeholder="Buscar movimiento por nombre...">
+                <button id="searchBtn" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">
+                    Buscar
+                </button>
+            </div>
+
+            <div id="resultadoBusqueda" class="mb-6"></div>
+
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h2 class="text-xl font-semibold mb-4">Movimientos Registrados</h2>
+                <table id="movimientosTable" class="w-full">
+                    <thead>
+                        <tr class="bg-gray-50">
+                            <th class="px-4 py-2 text-left">Nombre</th>
+                            <th class="px-4 py-2 text-left">Tipo</th>
+                            <th class="px-4 py-2 text-left">Monto</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Los movimientos se mostrarán aquí -->
+                    </tbody>
+                </table>
+
+                <div class="mt-6 grid grid-cols-2 gap-4">
+                    <div>
+                        <h3 class="text-lg font-medium">Total de Ingresos</h3>
+                        <p id="ingresosTotal" class="text-green-600 text-xl font-bold"></p>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-medium">Total de Egresos</h3>
+                        <p id="egresosTotal" class="text-red-600 text-xl font-bold"></p>
+                    </div>
+                </div>
+            </div>
         </div>
-
-        <div class="form-group">
-            <label for="tipo">Tipo:</label>
-            <select id="tipo">
-                <option value="ingreso">Ingreso</option>
-                <option value="egreso">Egreso</option>
-            </select>
-        </div>
-
-        <div class="form-group">
-            <label for="monto">Monto:</label>
-            <input type="number" id="monto" step="0.01" placeholder="Ej: 100.50">
-            <div id="montoError" class="error"></div>
-        </div>
-
-        <button type="submit">Registrar Movimiento</button>
-        <div id="successMessage" class="success"></div>
-    </form>
-
-    <div class="actions">
-        <button id="listarNombresBtn">Listar Nombres</button>
-        <button id="filtrarEgresosBtn">Egresos > 100</button>
-    </div>
-
-    <div id="searchForm">
-        <input type="text" id="searchInput" placeholder="Buscar movimiento por nombre...">
-        <button id="searchBtn">Buscar</button>
-    </div>
-
-    <div id="resultadoBusqueda"></div>
-
-    <h2>Movimientos Registrados</h2>
-    <table id="movimientosTable">
-        <thead>
-            <tr>
-                <th>Nombre</th>
-                <th>Tipo</th>
-                <th>Monto</th>
-            </tr>
-        </thead>
-        <tbody>
-            <!-- Los movimientos se mostrarán aquí -->
-        </tbody>
-    </table>
-
-    <h3>Total de Ingresos</h3>
-    <p id="ingresosTotal"></p>
-    <h3>Total de Egresos</h3>
-    <p id="egresosTotal"></p>
-    <script src="app.js"></script>
-</body>
-
+        <script src="app.js"></script>
+    </body>
 </html>
