@@ -123,7 +123,6 @@ Egreso.prototype.getColorClase = function() {
 
 // Agregar método de cálculo de totales al prototipo de Movimiento
 Movimiento.prototype.actualizarTotales = function(totales) {
-    debugger
     if (this instanceof Ingreso) {
         totales.ingresos += this.monto;
     } else if (this instanceof Egreso) {
@@ -160,14 +159,15 @@ function actualizarTabla() {
         }
     });
 
+    // Actualizar gráfico
+    actualizarGrafico(totalIngresos, totalEgresos);
     // Actualiza totales
     document.getElementById("ingresosTotal").innerText = totalIngresos.toFixed(2);
     document.getElementById("egresosTotal").innerText = totalEgresos.toFixed(2);
     // animarContador(document.getElementById("ingresosTotal"), totalIngresos);
     // animarContador(document.getElementById("egresosTotal"), totalEgresos);
 
-    // Actualizar gráfico
-    actualizarGrafico(totalIngresos, totalEgresos);
+    
 }
 
 // Función para animar los contadores
@@ -375,7 +375,11 @@ document.getElementById('limpiarTodo').addEventListener('click', function() {
         movimientos = [];
         guardarEnLocalStorage(); // Guarda en el localStorage
         // Limpia tabla y totales
+        debugger
         actualizarTabla();
+        const totalIngresos = 0;
+        const totalEgresos = 0;
+        actualizarGrafico(totalIngresos, totalEgresos);
 
         // Limpia lista de nombres
         document.getElementById('listaNombresResult').innerHTML = '';
@@ -424,7 +428,6 @@ function cargarDeLocalStorage() {
     const movimientosData = localStorage.getItem('movimientos');
     if (movimientosData) {
         const datos = JSON.parse(movimientosData);
-        debugger
         movimientos = datos.map(mov => {
             const movimiento = mov.tipo === 'ingreso'
                 ? new Ingreso(mov.nombre, mov.monto)
