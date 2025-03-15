@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestor de Presupuesto Personal</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body class="bg-gray-100 min-h-screen">
     <header class="bg-white shadow-md py-6">
@@ -106,6 +107,17 @@
                 <div class="p-4 bg-red-50 rounded-lg">
                     <h3 class="text-lg font-medium text-red-800">Total de Egresos</h3>
                     <p id="egresosTotal" class="text-2xl font-bold text-red-600"></p>
+                </div>
+            </div>
+        </section>
+        <section class="mb-8">
+            <div class="mt-6 p-6 bg-white rounded-lg shadow-md">
+                <h3 class="text-xl font-semibold mb-4">Balance General</h3>
+                <div class="flex items-center justify-center">
+                    <canvas id="balanceChart" width="400" height="400"></canvas>
+                </div>
+                <div class="mt-4 text-center">
+                    <p class="text-lg">Balance Total: <span id="balanceTotal" class="font-bold"></span></p>
                 </div>
             </div>
         </section>

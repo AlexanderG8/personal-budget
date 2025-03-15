@@ -71,6 +71,7 @@ Movimiento.prototype.eliminar = function() {
         const index = movimientos.indexOf(this);
         if (index > -1) {
             movimientos.splice(index, 1);
+            guardarEnLocalStorage(); // Agregar en el localStorage
             actualizarTabla();
 
             const successMessage = document.getElementById('successMessage');
@@ -164,6 +165,9 @@ function actualizarTabla() {
     document.getElementById("egresosTotal").innerText = totalEgresos.toFixed(2);
     // animarContador(document.getElementById("ingresosTotal"), totalIngresos);
     // animarContador(document.getElementById("egresosTotal"), totalEgresos);
+
+    // Actualizar gráfico
+    actualizarGrafico(totalIngresos, totalEgresos);
 }
 
 // Función para animar los contadores
@@ -207,6 +211,7 @@ gastoForm.addEventListener('submit', function(event) {
 
         movimiento.validar();
         movimientos.push(movimiento);
+        guardarEnLocalStorage(); // Agregar en el localStorage
 
         const successMessage = document.getElementById('successMessage');
         successMessage.textContent = 'Movimiento registrado con éxito';
@@ -368,7 +373,7 @@ document.getElementById('limpiarTodo').addEventListener('click', function() {
     if (confirm('¿Está seguro de eliminar todos los movimientos? Esta acción no se puede deshacer.')) {
         // Limpiar array de movimientos
         movimientos = [];
-
+        guardarEnLocalStorage(); // Guarda en el localStorage
         // Limpia tabla y totales
         actualizarTabla();
 
@@ -399,3 +404,78 @@ document.getElementById('limpiarTodo').addEventListener('click', function() {
         }, 3000);
     }
 });
+
+//PROYECTO MODULO 2
+//HU1: Guardar datos en el LocalStorage
+
+// Función para guardar en localStorage
+function guardarEnLocalStorage() {
+    const movimientosData = movimientos.map(mov => ({
+        nombre: mov.nombre,
+        monto: mov.monto,
+        fecha: mov.fecha,
+        tipo: mov instanceof Ingreso ? 'ingreso' : 'egreso'
+    }));
+    localStorage.setItem('movimientos', JSON.stringify(movimientosData));
+}
+
+// Función para cargar desde localStorage
+function cargarDeLocalStorage() {
+    const movimientosData = localStorage.getItem('movimientos');
+    if (movimientosData) {
+        const datos = JSON.parse(movimientosData);
+        debugger
+        movimientos = datos.map(mov => {
+            const movimiento = mov.tipo === 'ingreso'
+                ? new Ingreso(mov.nombre, mov.monto)
+                : new Egreso(mov.nombre, mov.monto);
+            movimiento.fecha = new Date(mov.fecha);
+            return movimiento;
+        });
+        actualizarTabla();
+    }
+}
+
+// Cargar datos al iniciar la aplicación
+document.addEventListener('DOMContentLoaded', function() {
+    cargarDeLocalStorage();
+});
+
+// HU2: Grafica de Balance General
+// Función para actualizar el gráfico
+function actualizarGrafico(ingresos, egresos) {
+    const ctx = document.getElementById('balanceChart').getContext('2d');
+
+    // Si existe un grafico
+    if (window.balanceChart instanceof Chart) {
+        // Destruye grafico
+        window.balanceChart.destroy();
+    }
+
+    window.balanceChart = new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: ['Ingresos', 'Egresos'],
+            datasets: [{
+                data: [ingresos, egresos],
+                backgroundColor: ['#10B981', '#EF4444'],
+                borderColor: ['#059669', '#DC2626'],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        }
+    });
+
+    // Actualizar balance total
+    const balance = ingresos - egresos;
+    const balanceElement = document.getElementById('balanceTotal');
+    balanceElement.textContent = balance.toFixed(2);
+    balanceElement.className = balance >= 0 ? 'font-bold text-green-600' : 'font-bold text-red-600';
+}

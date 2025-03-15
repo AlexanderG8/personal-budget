@@ -126,3 +126,27 @@ En mi humilde opinión, este enfoque ha permitido:
    - Debe pedir confirmación antes de eliminar
    - Debe reiniciar los totales a cero
    - Debe mostrar mensaje de confirmación
+
+
+## Proyecto Modulo 2
+
+Debes implementará al menos 2 nuevas Historias de Usuario.
+
+1. **HU8: Persistencia de Datos**
+   - Como usuario, quiero que mis movimientos financieros se guarden en el navegador para no perder mi información al cerrar la página.
+
+   Criterios de Aceptación:
+   - Los movimientos deben guardarse automáticamente en localStorage
+   - Al cargar la página, debe recuperar los movimientos guardados
+   - Los totales deben calcularse correctamente con los datos recuperados
+   - La persistencia debe funcionar para todas las operaciones (crear, editar, eliminar)
+
+2. **HU9: Balance Total con Gráfico**
+   - Como usuario, quiero ver un gráfico que muestre la proporción entre ingresos y egresos para entender mejor mi situación financiera.
+
+   Criterios de Aceptación:
+   - Debe mostrar un gráfico circular (pie chart) con Chart.js
+   - El gráfico debe actualizarse automáticamente con cada movimiento
+   - Debe mostrar porcentajes de ingresos vs egresos
+   - Debe usar colores consistentes con la UI actual (verde para ingresos, rojo para egresos)
+   - Debe mostrar el balance total (ingresos - egresos) debajo del gráfico.
